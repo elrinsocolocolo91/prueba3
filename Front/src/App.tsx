@@ -12,7 +12,8 @@ type HistoryItem = {
   created_at: string
 }
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000'
+// When deployed to Vercel as a single project, serverless APIs live under /api
+const API_BASE = '' // use relative paths like /api/calculate
 
 function App() {
   const [a, setA] = useState<string>('')
@@ -29,7 +30,7 @@ function App() {
 
   async function fetchHistory() {
     try {
-      const res = await fetch(`${API_URL}/history`)
+      const res = await fetch(`${API_BASE}/api/history`)
       if (!res.ok) throw new Error('Failed to fetch history')
       const data = await res.json()
       setHistory(data)
@@ -49,7 +50,7 @@ function App() {
     }
     setLoading(true)
     try {
-      const res = await fetch(`${API_URL}/calculate`, {
+      const res = await fetch(`${API_BASE}/api/calculate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ a: na, b: nb, op }),
