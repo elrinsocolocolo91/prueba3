@@ -31,6 +31,13 @@ if (!pool && connectionString) {
 
 export default async function handler(_: any, res: any) {
   try {
+    // debug support: /api/history?debug=1
+    const isDebug = Boolean((res.req && res.req.query && (res.req.query.debug === '1' || res.req.query.debug === 'true')) || (res.req && res.req.url && res.req.url.includes('debug')))
+    console.log('API /api/history called', { hasPool: !!pool, databaseUrlSet: !!process.env.DATABASE_URL })
+    if (isDebug) {
+      res.json({ debug: true, hasPool: !!pool, databaseUrlSet: !!process.env.DATABASE_URL })
+      return
+    }
     if (!pool) {
       res.json([])
       return

@@ -53,6 +53,13 @@ if (!pool && connectionString) {
 }
 
 export default async function handler(req: any, res: any) {
+  console.log('API /api/calculate called', { method: req.method, query: req.query, url: req.url })
+  // if debug query param present, return diagnostics
+  const isDebug = Boolean((req.query && (req.query.debug === '1' || req.query.debug === 'true')) || (req.url && req.url.includes('debug')))
+  if (isDebug) {
+    res.json({ debug: true, method: req.method, query: req.query, body: req.body, hasPool: !!pool, databaseUrlSet: !!process.env.DATABASE_URL })
+    return
+  }
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
     return
@@ -74,6 +81,7 @@ export default async function handler(req: any, res: any) {
     if (pool) {
       // wait for init if still running
       if (initPromise) await initPromise
+      console.log('Pool exists, inserting into DB')
       const insert = await pool.query(
         'INSERT INTO operations(a,b,op,result) VALUES($1,$2,$3,$4) RETURNING *',
         [a, b, op, result],
